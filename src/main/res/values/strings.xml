@@ -7,5 +7,6 @@
     <string name="title_activity_searchable">SearchableActivity</string>
     <string name="title_activity_list">ListActivity</string>
     <string name="intro">Welcome to the Times RSS Feed</string>
+    <string name="title_activity_article_clicked">ArticleClicked</string>
 
 </resources>

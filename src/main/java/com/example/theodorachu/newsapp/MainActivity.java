@@ -4,6 +4,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.os.AsyncTask;
 import android.widget.LinearLayout;
@@ -13,6 +14,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.widget.ImageView;
 import android.util.Log;
+import android.content.Intent;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -130,14 +132,24 @@ public class MainActivity extends ActionBarActivity {
                 xmlReader.parse(inputSource);
 
                 //hacky lol
-                final ArrayList<String> temp = titles;
+                final ArrayList<String> tempTitles = titles;
+                final ArrayList<String> tempArticleLinks = articleLinks;
 
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        for(int i = 0; i < temp.size(); ++i) {
+                        for(int i = 0; i < tempTitles.size(); ++i) {
                             Button article = new Button(getBaseContext());
-                            article.setText(temp.get(i));
+                            article.setText(tempTitles.get(i));
+                            final int index = i;
+                            article.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    Intent intent = new Intent(getBaseContext(), ArticleClicked.class);
+                                    intent.putExtra("url", tempArticleLinks.get(index));
+                                    startActivity(intent);
+                                }
+                            });
                             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
                             mainView.addView(article, lp);
                         }
