@@ -61,18 +61,21 @@ public class MainActivity extends ActionBarActivity {
 //    }
 
     private class RSSHandler extends DefaultHandler {
-        private ArrayList<String> titles;
-        private boolean beginArticles, title, firstTitle;
+        private ArrayList<String> titles, urls;
+        private boolean beginArticles, title, firstTitle, link;
         private String fullTitle = "";
 
-        public RSSHandler(ArrayList<String> titles) {
+        public RSSHandler(ArrayList<String> titles, ArrayList<String> articleLinks) {
             this.titles = titles;
+            urls = articleLinks;
         }
 
         public void characters(char[] ch, int start, int length) throws SAXException {
             String cdata = new String(ch, start, length);
             if (beginArticles && title && firstTitle) {
                 fullTitle += cdata.trim();
+            } else if (beginArticles && link) {
+                urls.add(cdata.trim());
             }
         }
 
@@ -88,6 +91,7 @@ public class MainActivity extends ActionBarActivity {
                 } else {
                     title = false;
                 }
+                link = localName.equals("link");
 //                if (localName.equals("thumbnail")) {
 //                    String thumbUrl = attrs.getValue("url");
 //                    String urls[] = new String[1];
@@ -115,11 +119,12 @@ public class MainActivity extends ActionBarActivity {
         protected ArrayList<String> doInBackground(URL... urls) {
             try {
                 ArrayList<String> titles = new ArrayList<String>();
+                ArrayList<String> articleLinks = new ArrayList<String>();
                 SAXParserFactory factory = SAXParserFactory.newInstance();
                 SAXParser saxParser = factory.newSAXParser();
                 XMLReader xmlReader = saxParser.getXMLReader();
 
-                RSSHandler rssHandler = new RSSHandler(titles);
+                RSSHandler rssHandler = new RSSHandler(titles, articleLinks);
                 xmlReader.setContentHandler(rssHandler);
                 InputSource inputSource = new InputSource(urls[0].openStream());
                 xmlReader.parse(inputSource);
