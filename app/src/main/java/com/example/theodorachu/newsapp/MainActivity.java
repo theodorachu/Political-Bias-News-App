@@ -25,7 +25,7 @@ public class MainActivity extends ActionBarActivity {
 
     private class RSSHandler extends DefaultHandler {
         private String[] rssResult;
-        private boolean item;
+        private boolean beginArticles, title, firstTitle;
 
         public RSSHandler(String[] rssResult) {
             this.rssResult = rssResult;
@@ -33,19 +33,29 @@ public class MainActivity extends ActionBarActivity {
 
         public void characters(char[] ch, int start, int length) throws SAXException {
             String cdata = new String(ch, start, length);
-            if (item) {
-                rssResult[0] = rssResult[0] + (cdata.trim()).replaceAll("\\s+", " ") + "\t";
+            if (title && firstTitle && beginArticles) {
+                rssResult[0] = rssResult[0] + (cdata.trim()).replaceAll("\\s+", " ");
             }
         }
 
         public void startElement(String uri, String localName, String qName,
                                  Attributes attrs) throws SAXException {
-            if (localName.equals("item"))
-                item = true;
+            if (localName.equals("item")) {
+                beginArticles = true;
+            }
+            if (beginArticles && !firstTitle && localName.equals("title")) {
+                firstTitle = true;
+                title = true;
+                rssResult[0] = rssResult[0] + "\n" + localName + ": ";
+            } else {
+                title = false;
+            }
+        }
 
-            if (!localName.equals("item") && item)
-                rssResult[0] = rssResult[0] + localName + ": ";
-
+        public void endElement(String uri, String localName, String qName)
+                throws SAXException {
+            if(localName.equals("item"))
+                firstTitle = false;
         }
 
     }
