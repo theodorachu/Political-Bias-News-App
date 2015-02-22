@@ -75,7 +75,6 @@ public class MainActivity extends ActionBarActivity {
         }
 
         public void characters(char[] ch, int start, int length) throws SAXException {
-            // only gets correct url for every 3rd site
             String cdata = new String(ch, start, length);
             if (beginArticles && title && firstTitle) {
                 fullTitle += cdata.trim();
