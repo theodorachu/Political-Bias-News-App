@@ -1,5 +1,6 @@
 package com.example.theodorachu.newsapp;
 
+import android.graphics.Color;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -15,6 +16,7 @@ import android.graphics.BitmapFactory;
 import android.widget.ImageView;
 import android.util.Log;
 import android.content.Intent;
+import android.widget.Toast;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -32,7 +34,7 @@ import java.net.URL;
 import java.util.ArrayList;
 
 public class MainActivity extends ActionBarActivity {
-
+    public static ArrayList<Button> buttons = new ArrayList<Button>();
     private LinearLayout mainView;
 //    private TextView rss;
 //    private ImageView img;
@@ -116,7 +118,6 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private class DownloadFilesTask extends AsyncTask<URL, Void, ArrayList<String>> {
-
         @Override
         protected ArrayList<String> doInBackground(URL... urls) {
             try {
@@ -131,7 +132,6 @@ public class MainActivity extends ActionBarActivity {
                 InputSource inputSource = new InputSource(urls[0].openStream());
                 xmlReader.parse(inputSource);
 
-                //hacky lol
                 final ArrayList<String> tempTitles = titles;
                 final ArrayList<String> tempArticleLinks = articleLinks;
 
@@ -140,13 +140,16 @@ public class MainActivity extends ActionBarActivity {
                     public void run() {
                         for(int i = 0; i < tempTitles.size(); ++i) {
                             Button article = new Button(getBaseContext());
+                            article.setId(i);
                             article.setText(tempTitles.get(i));
                             final int index = i;
+                            buttons.add(article);
                             article.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
                                     Intent intent = new Intent(getBaseContext(), ArticleClicked.class);
                                     intent.putExtra("url", tempArticleLinks.get(index));
+                                    intent.putExtra("index", index);
                                     startActivity(intent);
                                 }
                             });
@@ -208,4 +211,6 @@ public class MainActivity extends ActionBarActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+
 }
