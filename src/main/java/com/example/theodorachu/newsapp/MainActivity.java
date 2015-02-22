@@ -15,13 +15,20 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 import android.widget.TextView;
 import android.os.AsyncTask;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.widget.ImageView;
 
 import java.io.IOException;
+import java.io.InputStream;
+import android.util.Log;
 import java.net.URL;
+import java.util.ArrayList;
 
 public class MainActivity extends ActionBarActivity {
 
     private TextView rss;
+    private ImageView img;
 
     private class DownloadImageTask extends AsyncTask <String, Void, Bitmap> {
         ImageView bmImage;
@@ -49,17 +56,18 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private class RSSHandler extends DefaultHandler {
-        private String[] rssResult;
-        private boolean beginArticles, title, firstTitle, thumbnail;
+        private ArrayList<String> titles;
+        private boolean beginArticles, title, firstTitle;
+        private String fullTitle = "";
 
-        public RSSHandler(String[] rssResult) {
-            this.rssResult = rssResult;
+        public RSSHandler(ArrayList<String> titles) {
+            this.titles = titles;
         }
 
         public void characters(char[] ch, int start, int length) throws SAXException {
             String cdata = new String(ch, start, length);
             if (beginArticles && title && firstTitle) {
-                rssResult[0] = rssResult[0] + (cdata.trim()).replaceAll("\\s+", " ");
+                fullTitle += cdata.trim();
             }
         }
 
@@ -72,49 +80,53 @@ public class MainActivity extends ActionBarActivity {
                 if (!firstTitle && localName.equals("title")) {
                     firstTitle = true;
                     title = true;
-                    rssResult[0] = rssResult[0] + "\n" + localName + ": ";
                 } else {
                     title = false;
                 }
                 if (localName.equals("thumbnail")) {
-                    thumbnail = true;
-                    rssResult[0] = rssResult[0] + "\n" + localName + ": " + attrs.getValue("url");
-
-;                } else {
-                    thumbnail = false;
+                    String thumburl = attrs.getValue("url");
+                    String urls[] = new String[1];
+                    urls[0] = thumburl;
+                    new DownloadImageTask(img)
+                            .execute(urls);
                 }
             }
         }
 
         public void endElement(String uri, String localName, String qName)
                 throws SAXException {
-            if(localName.equals("item"))
+            if(localName.equals("item")) {
                 firstTitle = false;
+                titles.add(fullTitle);
+                fullTitle = "";
+            }
         }
 
     }
 
-    private class DownloadFilesTask extends AsyncTask<URL, Void, Long> {
-
-        private String[] rssResult = new String[1];
+    private class DownloadFilesTask extends AsyncTask<URL, Void, ArrayList<String>> {
 
         @Override
-        protected Long doInBackground(URL... urls) {
+        protected ArrayList<String> doInBackground(URL... urls) {
             try {
+                ArrayList<String> titles = new ArrayList<String>();
                 SAXParserFactory factory = SAXParserFactory.newInstance();
                 SAXParser saxParser = factory.newSAXParser();
                 XMLReader xmlReader = saxParser.getXMLReader();
 
-                rssResult[0] = "";
-                RSSHandler rssHandler = new RSSHandler(rssResult);
+                RSSHandler rssHandler = new RSSHandler(/*rssResult, */titles);
                 xmlReader.setContentHandler(rssHandler);
                 InputSource inputSource = new InputSource(urls[0].openStream());
                 xmlReader.parse(inputSource);
 
+                //hacky lol
+                final ArrayList<String> temp = titles;
+
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        rss.setText(rssResult[0]);
+                        for(int i = 0; i < temp.size(); ++i)
+                            rss.append("\n" + temp.get(i));
                     }
                 });
 
@@ -132,6 +144,8 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         rss = (TextView) findViewById(R.id.rss);
+        img = (ImageView) findViewById(R.id.img);
+
         try {
             URL rssUrl = new URL("http://time.com/politics/feed/");
             URL[] urls = new URL[1];
