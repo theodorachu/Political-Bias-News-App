@@ -75,11 +75,13 @@ public class MainActivity extends ActionBarActivity {
         }
 
         public void characters(char[] ch, int start, int length) throws SAXException {
+            // only gets correct url for every 3rd site
             String cdata = new String(ch, start, length);
             if (beginArticles && title && firstTitle) {
                 fullTitle += cdata.trim();
-            } else if (beginArticles && link) {
-                urls.add(cdata.trim());
+            }
+            if (beginArticles && link) {
+                urls.add(cdata);
             }
         }
 
@@ -127,10 +129,12 @@ public class MainActivity extends ActionBarActivity {
                 SAXParser saxParser = factory.newSAXParser();
                 XMLReader xmlReader = saxParser.getXMLReader();
 
-                RSSHandler rssHandler = new RSSHandler(titles, articleLinks);
-                xmlReader.setContentHandler(rssHandler);
-                InputSource inputSource = new InputSource(urls[0].openStream());
-                xmlReader.parse(inputSource);
+                for(int i = 0; i <=0; i++) {
+                    RSSHandler rssHandler = new RSSHandler(titles, articleLinks);
+                    xmlReader.setContentHandler(rssHandler);
+                    InputSource inputSource = new InputSource(urls[i].openStream());
+                    xmlReader.parse(inputSource);
+                }
 
                 final ArrayList<String> tempTitles = titles;
                 final ArrayList<String> tempArticleLinks = articleLinks;
@@ -138,6 +142,7 @@ public class MainActivity extends ActionBarActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+
                         for(int i = 0; i < tempTitles.size(); ++i) {
                             Button article = new Button(getBaseContext());
                             article.setId(i);
@@ -148,7 +153,7 @@ public class MainActivity extends ActionBarActivity {
                                 @Override
                                 public void onClick(View v) {
                                     Intent intent = new Intent(getBaseContext(), ArticleClicked.class);
-                                    intent.putExtra("url", tempArticleLinks.get(index));
+                                    intent.putExtra("url", tempArticleLinks.get(index*3));
                                     intent.putExtra("index", index);
                                     startActivity(intent);
                                 }
@@ -173,8 +178,6 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         mainView = (LinearLayout) findViewById(R.id.linlay);
-//        rss = (TextView) findViewById(R.id.rss);
-//        img = (ImageView) findViewById(R.id.img);
 
         try {
             URL rssUrl = new URL("http://time.com/politics/feed/");
@@ -185,7 +188,6 @@ public class MainActivity extends ActionBarActivity {
             task.execute(urls);
         } catch (IOException e) {
             e.printStackTrace();
-//            rss.setText(e.getMessage());
         }
     }
 
