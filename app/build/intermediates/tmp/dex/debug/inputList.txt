@@ -1,5 +1,0 @@
-/Users/theodorachu/AndroidStudioProjects/NewsApp/app/build/intermediates/classes/debug
-/Users/theodorachu/AndroidStudioProjects/NewsApp/app/build/intermediates/pre-dexed/debug/support-annotations-21.0.3-11f2b0c24b42ec1e54ffef9c2d48adb614532799.jar
-/Users/theodorachu/AndroidStudioProjects/NewsApp/app/build/intermediates/pre-dexed/debug/internal_impl-21.0.3-f70903f5de9171bf4c617f9ec976794b06f1837d.jar
-/Users/theodorachu/AndroidStudioProjects/NewsApp/app/build/intermediates/pre-dexed/debug/classes-f132e0a8f6d79b9a0baaf7474d7aed760856c7b2.jar
-/Users/theodorachu/AndroidStudioProjects/NewsApp/app/build/intermediates/pre-dexed/debug/classes-68d35199f160dcea82a37eb4b3f1d00af77877c3.jar
